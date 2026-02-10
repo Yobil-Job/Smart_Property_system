@@ -1,0 +1,57 @@
+services:
+  # 1. PostgreSQL Relational Database
+  db:
+    image: postgres:16-alpine
+    container_name: smartproperty-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: smartproperty_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Password123!
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # 2. ASP.NET Core Web API (Backend)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: smartproperty-backend
+    restart: always
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:5096
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=smartproperty_db;Username=postgres;Password=Password123!
+      - JwtSettings__Secret=SuperSecretSecretKeyForSmartPropertyAIEnterprise2026!
+      - JwtSettings__Issuer=SmartPropertyAI
+      - JwtSettings__Audience=SmartPropertyAI.Clients
+      - JwtSettings__ExpiryMinutes=120
+    ports:
+      - "5096:5096"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # 3. SmartProperty AI Frontend (Nginx SPA + Reverse Proxy)
+  frontend:
+    build:
+      context: ./api-studio-dashboard-main
+      dockerfile: Dockerfile
+    container_name: smartproperty-frontend
+    restart: always
+    ports:
+      - "80:80"
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+

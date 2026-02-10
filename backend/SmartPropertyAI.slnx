@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/SmartPropertyAI.API/SmartPropertyAI.API.csproj" />
+    <Project Path="src/SmartPropertyAI.Application/SmartPropertyAI.Application.csproj" />
+    <Project Path="src/SmartPropertyAI.Domain/SmartPropertyAI.Domain.csproj" />
+    <Project Path="src/SmartPropertyAI.Infrastructure/SmartPropertyAI.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/SmartPropertyAI.IntegrationTests/SmartPropertyAI.IntegrationTests.csproj" />
+    <Project Path="tests/SmartPropertyAI.UnitTests/SmartPropertyAI.UnitTests.csproj" />
+  </Folder>
+</Solution>

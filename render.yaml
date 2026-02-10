@@ -1,0 +1,60 @@
+databases:
+  - name: smartproperty-db
+    databaseName: smartproperty_prod
+    user: smartproperty_user
+    plan: free
+    region: oregon
+
+services:
+  # ---------------------------------------------------------
+  # 1. Backend Web Service (.NET 10 Clean Architecture API)
+  # ---------------------------------------------------------
+  - type: web
+    name: smartproperty-backend
+    runtime: docker
+    dockerfilePath: backend/Dockerfile
+    dockerContext: backend
+    plan: free
+    region: oregon
+    healthCheckPath: /health
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: smartproperty-db
+          property: connectionString
+      - key: JwtSettings__SecretKey
+        generateValue: true
+      - key: JwtSettings__Issuer
+        value: SmartPropertyAI
+      - key: JwtSettings__Audience
+        value: SmartPropertyAIClient
+      - key: JwtSettings__ExpiryMinutes
+        value: "60"
+      - key: AI_PROVIDER
+        value: Groq
+      - key: GROQ_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+
+  # ---------------------------------------------------------
+  # 2. Frontend Web Service (TanStack Start / React)
+  # ---------------------------------------------------------
+  - type: web
+    name: smartproperty-frontend
+    runtime: node
+    rootDir: api-studio-dashboard-main
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    plan: free
+    region: oregon
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NITRO_PRESET
+        value: node-server
+      - key: VITE_API_BASE_URL
+        value: https://smartproperty-backend.onrender.com/api/v1
+

@@ -1,0 +1,57 @@
+## .gitignore for SmartProperty AI (.NET + Node)
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio / VS Code
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Secrets & Environment variables
+appsettings.Production.json
+appsettings.*.local.json
+*.env
+*.env.*
+!.env.example
+
+# Node / Frontend
+node_modules/
+dist/
+build/
+.next/
+npm-debug.log*
+
+# OS Files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+
+# Output & Build
+.output/
+dist/
+build/
+
+# Internal Implementation Notes & Generation Docs
+*implementation*
+*implemention*
+*FULL_API_DOCUMENTATION*
+scratch/
+
+
