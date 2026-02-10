@@ -330,10 +330,10 @@ public class OpenAiProvider : IAiProvider
 
     private string GetEffectiveApiKey()
     {
-        var key = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
+        var key = Environment.GetEnvironmentVariable("GROQ_API_KEY");
         if (string.IsNullOrWhiteSpace(key))
         {
-            key = Environment.GetEnvironmentVariable("GROQ_API_KEY");
+            key = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
         }
         if (string.IsNullOrWhiteSpace(key))
         {
@@ -342,7 +342,7 @@ public class OpenAiProvider : IAiProvider
 
         if (string.IsNullOrWhiteSpace(key))
         {
-            throw new AiProviderException("AI API Key is not configured. Set OPENAI_API_KEY in .env, environment variables, or appsettings.json.", HttpStatusCode.BadGateway);
+            throw new AiProviderException("AI API Key is not configured. Set GROQ_API_KEY or OPENAI_API_KEY in environment variables or appsettings.json.", HttpStatusCode.BadGateway);
         }
 
         return key.Trim();

@@ -36,8 +36,6 @@ services:
         value: Groq
       - key: GROQ_API_KEY
         sync: false
-      - key: OPENAI_API_KEY
-        sync: false
 
   # ---------------------------------------------------------
   # 2. Frontend Web Service (TanStack Start / React)
