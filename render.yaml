@@ -44,11 +44,13 @@ services:
     name: smartproperty-frontend
     runtime: node
     rootDir: api-studio-dashboard-main
-    buildCommand: npm install && npm run build
+    buildCommand: npm install --include=dev && npm run build
     startCommand: npm run start
     plan: free
     region: oregon
     envVars:
+      - key: NODE_VERSION
+        value: "22"
       - key: NODE_ENV
         value: production
       - key: NITRO_PRESET
