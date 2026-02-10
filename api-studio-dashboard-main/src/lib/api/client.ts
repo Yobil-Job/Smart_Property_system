@@ -275,17 +275,29 @@ async function executeRequest<T>(
   }
 
   let response: Response;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 20000);
+
   try {
     response = await fetch(url.toString(), {
       method: method.toUpperCase(),
       headers,
       body: body ? JSON.stringify(body) : undefined,
+      signal: controller.signal,
     });
   } catch (netErr: unknown) {
+    if (netErr instanceof DOMException && netErr.name === "AbortError") {
+      throw new ApiError(
+        0,
+        `Connection timed out. The backend server at ${baseUrl} is not responding. Please check if the backend service is deployed and running on Render.`
+      );
+    }
     throw new ApiError(
       0,
-      `Unable to connect to SmartProperty AI services. Please check your network connection or verify that the API server is online.`
+      `Unable to connect to SmartProperty AI services at ${baseUrl}. Please check your connection or verify that the backend API is online.`
     );
+  } finally {
+    clearTimeout(timeoutId);
   }
 
   // Handle 401 Unauthorized with token refresh rotation
