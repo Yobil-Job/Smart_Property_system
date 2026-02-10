@@ -13,12 +13,27 @@ public static class IdentityDataSeeder
     {
         using var scope = serviceProvider.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        await dbContext.Database.MigrateAsync();
-        await dbContext.Database.ExecuteSqlRawAsync("ALTER TABLE amenities ADD COLUMN IF NOT EXISTS deleted_by character varying(100); ALTER TABLE amenity_bookings ADD COLUMN IF NOT EXISTS deleted_by character varying(100);");
-
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<ApplicationUser>>();
+
+        // Apply migrations with retry in case database container is still booting
+        var retryCount = 5;
+        while (retryCount > 0)
+        {
+            try
+            {
+                await dbContext.Database.MigrateAsync();
+                await dbContext.Database.ExecuteSqlRawAsync("ALTER TABLE amenities ADD COLUMN IF NOT EXISTS deleted_by character varying(100); ALTER TABLE amenity_bookings ADD COLUMN IF NOT EXISTS deleted_by character varying(100);");
+                break;
+            }
+            catch (Exception ex) when (retryCount > 1)
+            {
+                retryCount--;
+                logger.LogWarning(ex, "Database migration attempt failed. Retrying in 4 seconds... ({AttemptsLeft} attempts remaining)", retryCount);
+                await Task.Delay(4000);
+            }
+        }
 
         // 1. Seed Roles
         foreach (var roleName in UserRoles.AllRoles)

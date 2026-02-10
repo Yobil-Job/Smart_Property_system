@@ -29,7 +29,7 @@ try
     var cloudPort = Environment.GetEnvironmentVariable("PORT");
     if (!string.IsNullOrEmpty(cloudPort))
     {
-        builder.WebHost.UseUrls($"http://0.0.0.0:{cloudPort}");
+        builder.WebHost.UseUrls($"http://*:{cloudPort}");
     }
 
     // 2. Configure Serilog host
@@ -144,10 +144,9 @@ try
         });
     }
 
+    app.UseRouting();
     app.UseCors("AllowAllDevOrigins");
     app.UseStaticFiles();
-
-    app.UseRouting();
 
     app.UseAuthentication();
     app.UseAuthorization();
@@ -180,8 +179,19 @@ try
         }
     });
 
-    // 11. Seed Identity Roles and Default Administrator
-    await IdentityDataSeeder.SeedAsync(app.Services);
+    // 11. Seed Identity Roles and Default Administrator asynchronously
+    _ = Task.Run(async () =>
+    {
+        try
+        {
+            await IdentityDataSeeder.SeedAsync(app.Services);
+            Log.Information("Database migrations and default seed data applied successfully.");
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Background database migration and seeding encountered an error.");
+        }
+    });
 
     Log.Information("SmartProperty AI Web API configured successfully. Launching server...");
     app.Run();

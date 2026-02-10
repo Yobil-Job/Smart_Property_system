@@ -128,14 +128,18 @@ public static class DependencyInjection
             {
                 var uri = new Uri(raw);
                 var userInfo = uri.UserInfo.Split(':');
+                var isInternalRender = uri.Host.StartsWith("dpg-", StringComparison.OrdinalIgnoreCase) && !uri.Host.Contains('.');
+
                 var builder = new Npgsql.NpgsqlConnectionStringBuilder
                 {
                     Host = uri.Host,
                     Port = uri.Port > 0 ? uri.Port : 5432,
-                    Username = userInfo.Length > 0 ? userInfo[0] : "",
-                    Password = userInfo.Length > 1 ? userInfo[1] : "",
+                    Username = userInfo.Length > 0 ? Uri.UnescapeDataString(userInfo[0]) : "",
+                    Password = userInfo.Length > 1 ? Uri.UnescapeDataString(userInfo[1]) : "",
                     Database = uri.AbsolutePath.TrimStart('/'),
-                    SslMode = Npgsql.SslMode.Prefer
+                    SslMode = isInternalRender ? Npgsql.SslMode.Disable : Npgsql.SslMode.Prefer,
+                    Timeout = 15,
+                    CommandTimeout = 30
                 };
                 return builder.ConnectionString;
             }
