@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using SmartPropertyAI.Domain.Exceptions;
 using SmartPropertyAI.Application.Features.AI;
 using SmartPropertyAI.Application.Features.AI.DTOs;
@@ -22,6 +23,7 @@ public class AiOrchestratorService : IAiOrchestratorService
     private readonly IConversationalFormService _formService;
     private readonly IAiToolExecutionService _toolExecutor;
     private readonly IAmenityService _amenityService;
+    private readonly ILogger<AiOrchestratorService> _logger;
 
     public AiOrchestratorService(
         ApplicationDbContext context,
@@ -31,7 +33,8 @@ public class AiOrchestratorService : IAiOrchestratorService
         IIntentDetectionService intentDetector,
         IConversationalFormService formService,
         IAiToolExecutionService toolExecutor,
-        IAmenityService amenityService)
+        IAmenityService amenityService,
+        ILogger<AiOrchestratorService> logger)
     {
         _context = context;
         _aiProvider = aiProvider;
@@ -41,6 +44,7 @@ public class AiOrchestratorService : IAiOrchestratorService
         _formService = formService;
         _toolExecutor = toolExecutor;
         _amenityService = amenityService;
+        _logger = logger;
     }
 
     public async Task<AiChatResponseDto> ProcessChatTurnAsync(
@@ -596,8 +600,9 @@ public class AiOrchestratorService : IAiOrchestratorService
                 ? "I am here to help you manage your property, submit maintenance tickets, and pre-register visitors. How can I assist you today?"
                 : chatResp.Content.Trim();
         }
-        catch
+        catch (Exception ex)
         {
+            _logger.LogError(ex, "Failed to generate AI conversational reply for user {UserName} ({Role}). Falling back to default response.", userName, role);
             return "I am your SmartProperty AI assistant. I can help you report maintenance issues, register visitors, or check ticket statuses. How can I help you today?";
         }
     }

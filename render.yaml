@@ -38,6 +38,10 @@ services:
         value: "60"
       - key: AI_PROVIDER
         value: Groq
+      - key: OPENAI_BASE_URL
+        value: https://api.groq.com/openai/v1
+      - key: OPENAI_MODEL
+        value: openai/gpt-oss-120b
       - key: GROQ_API_KEY
         sync: false
 
