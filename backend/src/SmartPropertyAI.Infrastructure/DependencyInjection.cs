@@ -116,10 +116,17 @@ public static class DependencyInjection
 
     private static string ResolveConnectionString(IConfiguration configuration)
     {
-        var raw = configuration.GetConnectionString("DefaultConnection")
-            ?? configuration["DATABASE_URL"]
-            ?? Environment.GetEnvironmentVariable("DATABASE_URL")
-            ?? throw new InvalidOperationException("Connection string 'DefaultConnection' or 'DATABASE_URL' was not found.");
+        var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL")
+            ?? configuration["DATABASE_URL"];
+
+        var raw = !string.IsNullOrWhiteSpace(databaseUrl)
+            ? databaseUrl
+            : configuration.GetConnectionString("DefaultConnection");
+
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            throw new InvalidOperationException("Connection string 'DefaultConnection' or 'DATABASE_URL' was not found.");
+        }
 
         if (raw.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase) ||
             raw.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase))
