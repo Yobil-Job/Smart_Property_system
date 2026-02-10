@@ -153,8 +153,10 @@ try
 
     app.MapControllers();
 
-    // 10. Health Check Endpoint
-    app.MapHealthChecks("/health", new HealthCheckOptions
+    // 10. Health Check Endpoints (instant 200 OK for Render liveness probe)
+    app.MapGet("/health", () => Results.Ok(new { status = "Healthy", timestamp = DateTime.UtcNow }));
+
+    app.MapHealthChecks("/health/ready", new HealthCheckOptions
     {
         ResponseWriter = async (context, report) =>
         {

@@ -167,14 +167,35 @@ export function clearAuthTokens() {
 
 const DEFAULT_BASE_URL = "http://localhost:5096/api/v1";
 
+export function cleanApiUrl(url: string): string {
+  let clean = url.trim().replace(/\/$/, "");
+  if (!clean.startsWith("http://") && !clean.startsWith("https://")) {
+    clean = `https://${clean}`;
+  }
+  if (!clean.endsWith("/api/v1")) {
+    clean = `${clean}/api/v1`;
+  }
+  return clean;
+}
+
 export function getBaseUrl(): string {
   if (typeof window !== "undefined") {
     const customUrl = localStorage.getItem("smartproperty_api_url");
-    if (customUrl) return customUrl.replace(/\/$/, "");
+    if (customUrl) return cleanApiUrl(customUrl);
   }
   const envUrl = import.meta.env.VITE_API_BASE_URL;
-  if (envUrl) return envUrl.replace(/\/$/, "");
+  if (envUrl) return cleanApiUrl(envUrl);
   return DEFAULT_BASE_URL;
+}
+
+export function setCustomApiUrl(url: string | null) {
+  if (typeof window !== "undefined") {
+    if (!url || !url.trim()) {
+      localStorage.removeItem("smartproperty_api_url");
+    } else {
+      localStorage.setItem("smartproperty_api_url", cleanApiUrl(url));
+    }
+  }
 }
 
 export function getMediaUrl(url: string | null | undefined): string | null {

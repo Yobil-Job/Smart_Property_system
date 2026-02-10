@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth";
-import { getFriendlyErrorMessage } from "@/lib/api/client";
+import { getFriendlyErrorMessage, getBaseUrl, setCustomApiUrl } from "@/lib/api/client";
 import {
   Building2,
   Lock,
@@ -93,8 +93,24 @@ function LoginPage() {
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
             {errorMessage && (
-              <Alert variant="destructive" className="py-2.5">
-                <AlertDescription className="text-xs">{errorMessage}</AlertDescription>
+              <Alert variant="destructive" className="py-2.5 space-y-2">
+                <AlertDescription className="text-xs leading-relaxed">{errorMessage}</AlertDescription>
+                <div className="pt-1.5 border-t border-destructive/20 flex flex-wrap items-center justify-between gap-2 text-[11px]">
+                  <span className="opacity-90">API: <code className="font-mono bg-destructive/15 px-1 py-0.5 rounded">{getBaseUrl()}</code></span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const input = window.prompt("Enter your Render Backend API URL (e.g. https://your-backend.onrender.com/api/v1):", getBaseUrl());
+                      if (input && input.trim()) {
+                        setCustomApiUrl(input.trim());
+                        window.location.reload();
+                      }
+                    }}
+                    className="underline font-bold hover:opacity-100"
+                  >
+                    Change Backend URL
+                  </button>
+                </div>
               </Alert>
             )}
 

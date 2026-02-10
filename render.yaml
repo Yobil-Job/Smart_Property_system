@@ -33,7 +33,7 @@ services:
       - key: JwtSettings__Issuer
         value: SmartPropertyAI
       - key: JwtSettings__Audience
-        value: SmartPropertyAIClient
+        value: SmartPropertyAI_Clients
       - key: JwtSettings__ExpiryMinutes
         value: "60"
       - key: AI_PROVIDER
